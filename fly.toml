@@ -1,0 +1,37 @@
+# Fly.io deployment for the tracker bot.
+#
+# One always-on machine with a persistent volume for tracker.json. There is no
+# [http_service] block on purpose: the bot makes an outbound connection to
+# Discord and needs no public URL, so /healthz stays private to the Fly network
+# and is used only by the health check below.
+
+app = "usps-tracker-bot"
+primary_region = "iad"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  DATA_DIR = "/data"
+  PORT = "8080"
+
+# Tracking state lives here; without this volume the package list is lost on
+# every deploy.
+[mounts]
+  source = "tracker_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+# Restarts the machine if the bot is running but its Discord gateway
+# connection has dropped (/healthz answers 503 in that state).
+[checks.health]
+  type = "http"
+  port = 8080
+  method = "GET"
+  path = "/healthz"
+  interval = "60s"
+  timeout = "5s"
+  grace_period = "30s"

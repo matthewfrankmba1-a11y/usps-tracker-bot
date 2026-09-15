@@ -4,3 +4,7 @@ data
 .env
 *.log
 test
+fly.toml
+.github
+deploy
+README.md

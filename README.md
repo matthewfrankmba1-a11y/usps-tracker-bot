@@ -91,9 +91,28 @@ docker compose logs -f
 **systemd** — see [`deploy/usps-tracker-bot.service`](deploy/usps-tracker-bot.service)
 (`Restart=always`).
 
-**PaaS** (Fly.io, Railway, Render): run `node src/index.js` as a worker/web
-process, mount a persistent volume at `DATA_DIR`, and point the platform's
-health check at `GET /healthz`, which returns:
+**Fly.io** — [`fly.toml`](fly.toml) is committed: one always-on machine and a
+persistent volume, no public URL.
+
+```bash
+fly auth login
+fly launch --no-deploy --copy-config --name usps-tracker-bot --region iad
+fly volumes create tracker_data --size 1 --region iad
+fly secrets set DISCORD_TOKEN=... DISCORD_CLIENT_ID=... \
+  USPS_CLIENT_ID=... USPS_CLIENT_SECRET=...
+fly deploy
+fly logs
+```
+
+Secrets go in with `fly secrets set`, never in `fly.toml`. Keep
+`auto_stop_machines` unset (as it is here) — a suspended machine stops polling.
+Pushing to `main` redeploys automatically once `FLY_API_TOKEN` (from
+`fly tokens create deploy`) is set as a GitHub Actions secret; see
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+**Other PaaS** (Railway, Render): run `node src/index.js` as a worker process,
+mount a persistent volume at `DATA_DIR`, and point the platform's health check
+at `GET /healthz`, which returns:
 
 ```json
 {
