@@ -1,0 +1,17 @@
+services:
+  tracker-bot:
+    build: .
+    image: usps-tracker-bot
+    container_name: usps-tracker-bot
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - tracker-data:/data
+    ports:
+      - "8080:8080"
+    # Keeps the bot online across crashes and host reboots.
+    restart: unless-stopped
+
+volumes:
+  tracker-data:

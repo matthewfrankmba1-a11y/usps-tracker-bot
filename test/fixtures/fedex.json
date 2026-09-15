@@ -1,0 +1,37 @@
+{
+  "output": {
+    "completeTrackResults": [
+      {
+        "trackingNumber": "123456789012",
+        "trackResults": [
+          {
+            "latestStatusDetail": {
+              "code": "IT",
+              "statusByLocale": "In transit",
+              "description": "In transit",
+              "scanLocation": { "city": "MEMPHIS", "stateOrProvinceCode": "TN", "countryCode": "US" }
+            },
+            "serviceDetail": { "description": "FedEx Express Saver" },
+            "dateAndTimes": [
+              { "type": "ESTIMATED_DELIVERY", "dateTime": "2026-09-16T20:00:00-05:00" }
+            ],
+            "scanEvents": [
+              {
+                "date": "2026-09-15T02:14:00-05:00",
+                "eventType": "DP",
+                "eventDescription": "Departed FedEx location",
+                "scanLocation": { "city": "MEMPHIS", "stateOrProvinceCode": "TN", "countryCode": "US" }
+              },
+              {
+                "date": "2026-09-14T18:03:00-05:00",
+                "eventType": "AR",
+                "eventDescription": "Arrived at FedEx location",
+                "scanLocation": { "city": "MEMPHIS", "stateOrProvinceCode": "TN", "countryCode": "US" }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

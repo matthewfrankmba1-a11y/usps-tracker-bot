@@ -1,0 +1,30 @@
+{
+  "trackResponse": {
+    "shipment": [
+      {
+        "package": [
+          {
+            "trackingNumber": "1Z999AA10123456784",
+            "service": { "description": "UPS Ground" },
+            "currentStatus": { "type": "D", "description": "Delivered" },
+            "deliveryDate": [{ "type": "DEL", "date": "20260914" }],
+            "activity": [
+              {
+                "date": "20260914",
+                "time": "143512",
+                "status": { "type": "D", "description": "Delivered", "code": "FS" },
+                "location": { "address": { "city": "Austin", "stateProvince": "TX", "countryCode": "US" } }
+              },
+              {
+                "date": "20260914",
+                "time": "061200",
+                "status": { "type": "I", "description": "Out For Delivery Today" },
+                "location": { "address": { "city": "Austin", "stateProvince": "TX", "countryCode": "US" } }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

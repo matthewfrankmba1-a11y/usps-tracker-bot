@@ -1,0 +1,30 @@
+{
+  "trackingNumber": "9400111899223197428490",
+  "statusCategory": "Out for Delivery",
+  "statusSummary": "Out for Delivery, Expected Delivery by 8:00pm.",
+  "mailClass": "PRIORITY_MAIL",
+  "expectedDeliveryDate": "2026-09-15",
+  "trackingEvents": [
+    {
+      "eventType": "Out for Delivery",
+      "eventTimestamp": "2026-09-15T06:41:00Z",
+      "eventCity": "BROOKLYN",
+      "eventState": "NY",
+      "eventCountry": "US"
+    },
+    {
+      "eventType": "Arrived at Post Office",
+      "eventTimestamp": "2026-09-15T05:12:00Z",
+      "eventCity": "BROOKLYN",
+      "eventState": "NY",
+      "eventCountry": "US"
+    },
+    {
+      "eventType": "Departed USPS Regional Facility",
+      "eventTimestamp": "2026-09-14T22:02:00Z",
+      "eventCity": "QUEENS",
+      "eventState": "NY",
+      "eventCountry": "US"
+    }
+  ]
+}

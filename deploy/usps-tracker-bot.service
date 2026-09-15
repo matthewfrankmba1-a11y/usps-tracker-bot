@@ -1,0 +1,27 @@
+# Run the bot as a systemd service:
+#   sudo cp deploy/usps-tracker-bot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now usps-tracker-bot
+[Unit]
+Description=USPS/UPS/FedEx tracking Discord bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tracker
+WorkingDirectory=/opt/usps-tracker-bot
+EnvironmentFile=/opt/usps-tracker-bot/.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/usps-tracker-bot/data
+
+[Install]
+WantedBy=multi-user.target

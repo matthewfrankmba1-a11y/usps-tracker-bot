@@ -1,0 +1,29 @@
+{
+  "name": "usps-tracker-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that stays online and polls USPS, UPS and FedEx tracking endpoints for shipment updates every 20 minutes.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "register": "node src/discord/register.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "usps",
+    "ups",
+    "fedex",
+    "package-tracking"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.2.3"
+  }
+}
