@@ -6,7 +6,7 @@ import { logger } from './logger.js';
  * Kubernetes probes) hit /healthz to confirm the bot is still alive, which is
  * also what keeps free-tier web hosts from idling the process.
  */
-export function startHealthServer({ port, client, store, poller }) {
+export function startHealthServer({ port, host = process.env.HOST || '::', client, store, poller }) {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
     if (url.pathname === '/healthz' || url.pathname === '/') {
@@ -31,7 +31,18 @@ export function startHealthServer({ port, client, store, poller }) {
     res.end('{"error":"not found"}');
   });
 
-  server.listen(port, () => logger.info('health server listening', { port }));
-  server.on('error', (err) => logger.error('health server error', { error: err.message }));
+  // Fly (and any IPv6-only private network) health-checks the machine over its
+  // private IPv6 address, so bind dual-stack and fall back to IPv4 on hosts
+  // that have no IPv6 at all.
+  server.on('error', (err) => {
+    if (host === '::' && ['EAFNOSUPPORT', 'EADDRNOTAVAIL', 'EINVAL'].includes(err.code)) {
+      logger.warn('IPv6 unavailable, binding health server to 0.0.0.0', { code: err.code });
+      host = '0.0.0.0';
+      server.listen(port, host);
+      return;
+    }
+    logger.error('health server error', { error: err.message, code: err.code });
+  });
+  server.listen(port, host, () => logger.info('health server listening', { port, host }));
   return server;
 }
