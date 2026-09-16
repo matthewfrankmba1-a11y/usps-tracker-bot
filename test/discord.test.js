@@ -89,7 +89,7 @@ test('list embed handles empty and populated scopes', () => {
 test('status embed reports carrier configuration', () => {
   const json = statusEmbed({
     stats: { shipments: 3, subscriptions: 4 },
-    carrierStatus: { usps: true, ups: false, fedex: false },
+    carrierStatus: { usps: 'direct', ups: 'easypost', fedex: null },
     intervalMinutes: 20,
     nextPollAt: '2026-09-15T12:20:00Z',
     lastPollAt: '2026-09-15T12:00:00Z',
@@ -97,8 +97,9 @@ test('status embed reports carrier configuration', () => {
   }).toJSON();
   const fields = Object.fromEntries(json.fields.map((f) => [f.name, f.value]));
   assert.equal(fields['Poll interval'], '20 min');
-  assert.match(fields.Carriers, /🟢 USPS — configured/);
-  assert.match(fields.Carriers, /⚪ UPS — no credentials/);
+  assert.match(fields.Carriers, /🟢 USPS — carrier API/);
+  assert.match(fields.Carriers, /🔵 UPS — via EasyPost/);
+  assert.match(fields.Carriers, /⚪ FedEx — no credentials/);
 });
 
 test('timeTag emits Discord timestamps and tolerates junk', () => {

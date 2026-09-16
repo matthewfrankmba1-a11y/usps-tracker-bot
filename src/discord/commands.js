@@ -1,7 +1,7 @@
 import { MessageFlags, SlashCommandBuilder } from 'discord.js';
-import { CARRIER_IDS, getCarrier, resolveShipment, shipmentKey } from '../carriers/index.js';
+import { CARRIER_IDS, carrierTransport, getCarrier, resolveShipment, shipmentKey } from '../carriers/index.js';
 import { fingerprint } from '../carriers/normalize.js';
-import { configuredCarriers } from '../config.js';
+
 import { errorMeta, logger } from '../logger.js';
 import { listEmbed, statusEmbed, trackingEmbed } from './embeds.js';
 
@@ -126,9 +126,11 @@ async function handleAdd(interaction, { store, poller }) {
   if (!carrierModule.isConfigured()) {
     return interaction.editReply({
       content:
-        `⚠️ Tracking **${label || trackingNumber}** (${carrierModule.label}) in this channel, but ` +
-        `${carrierModule.label} API credentials are not configured, so no updates can be fetched yet. ` +
-        `Set \`${carrier.toUpperCase()}_CLIENT_ID\` and \`${carrier.toUpperCase()}_CLIENT_SECRET\` and restart the bot.`,
+        `⚠️ Tracking **${label || trackingNumber}** (${carrierModule.label}) in this channel, but no ` +
+        `tracking credentials are configured, so no updates can be fetched yet.\n` +
+        `Set \`EASYPOST_API_KEY\` to cover every carrier with one key, or ` +
+        `\`${carrier.toUpperCase()}_CLIENT_ID\` and \`${carrier.toUpperCase()}_CLIENT_SECRET\` to use ` +
+        `${carrierModule.label} directly.`,
     });
   }
 
@@ -226,8 +228,7 @@ async function handleCheck(interaction, { store, poller }) {
 
 async function handleStatus(interaction, { store, poller }) {
   const snapshot = poller.snapshot();
-  const configured = new Set(configuredCarriers());
-  const carrierStatus = Object.fromEntries(CARRIER_IDS.map((id) => [id, configured.has(id)]));
+  const carrierStatus = Object.fromEntries(CARRIER_IDS.map((id) => [id, carrierTransport(id)]));
 
   return interaction.reply({
     embeds: [

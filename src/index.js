@@ -1,6 +1,6 @@
 import { ActivityType, Client, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
-import { assertRuntimeConfig, config, configuredCarriers } from './config.js';
-import { getCarrier } from './carriers/index.js';
+import { assertRuntimeConfig, config } from './config.js';
+import { CARRIER_IDS, carrierTransport, getCarrier } from './carriers/index.js';
 import { STATUS_LABEL } from './carriers/normalize.js';
 import { errorMeta, logger } from './logger.js';
 import { openStore } from './store.js';
@@ -29,7 +29,8 @@ async function main() {
     logger.info('discord connected', {
       user: ready.user.tag,
       guilds: ready.guilds.cache.size,
-      carriers: configuredCarriers(),
+      // e.g. { usps: 'easypost', ups: 'easypost', fedex: null }
+      carriers: Object.fromEntries(CARRIER_IDS.map((id) => [id, carrierTransport(id)])),
     });
     ready.user.setPresence({
       status: 'online',

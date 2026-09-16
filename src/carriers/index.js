@@ -1,14 +1,42 @@
 import * as usps from './usps.js';
 import * as ups from './ups.js';
 import * as fedex from './fedex.js';
+import * as easypost from './easypost.js';
+import { config } from '../config.js';
 
 export const carriers = { usps, ups, fedex };
 export const CARRIER_IDS = Object.keys(carriers);
+export { easypost };
 
+/**
+ * Which transport will serve a carrier right now:
+ *   'direct'   — the carrier's own API (it has credentials)
+ *   'easypost' — EasyPost, which covers all three with one key
+ *   null       — nothing configured, so lookups are skipped
+ * TRACKING_PROVIDER forces one or the other; the default prefers a carrier's
+ * own API when it has credentials, so approval later takes over by itself.
+ */
+export function carrierTransport(id, cfg = config) {
+  const direct = carriers[String(id || '').toLowerCase()];
+  if (!direct) return null;
+
+  if (cfg.provider === 'direct') return direct.isConfigured() ? 'direct' : null;
+  if (cfg.provider === 'easypost') return easypost.isConfigured() ? 'easypost' : null;
+
+  if (direct.isConfigured()) return 'direct';
+  if (easypost.isConfigured()) return 'easypost';
+  return null;
+}
+
+/**
+ * The module that fetches for a carrier. When EasyPost is the transport this
+ * is a wrapper that keeps the carrier's own id, label and tracking URL, so
+ * shipments stay keyed by carrier and nothing downstream changes.
+ */
 export function getCarrier(id) {
   const carrier = carriers[String(id || '').toLowerCase()];
   if (!carrier) throw new Error(`Unknown carrier "${id}"`);
-  return carrier;
+  return carrierTransport(id) === 'easypost' ? easypost.wrap(carrier) : carrier;
 }
 
 /** Uppercase, strip spaces and dashes — how every carrier's own site normalises input. */

@@ -49,6 +49,14 @@ export const config = {
     dataDir,
     file: path.join(dataDir, 'tracker.json'),
   },
+  // 'auto'  — use a carrier's own API when it has credentials, else EasyPost
+  // 'easypost' — always go through EasyPost
+  // 'direct'   — only ever use the carriers' own APIs
+  provider: (process.env.TRACKING_PROVIDER || 'auto').toLowerCase(),
+  easypost: {
+    apiKey: process.env.EASYPOST_API_KEY || '',
+    baseUrl: process.env.EASYPOST_BASE_URL || 'https://api.easypost.com',
+  },
   carriers: {
     usps: {
       clientId: process.env.USPS_CLIENT_ID || '',
@@ -79,7 +87,7 @@ export function assertRuntimeConfig(cfg = config) {
   }
 }
 
-/** Carriers with credentials present; the rest are reported as unconfigured. */
+/** Carriers whose own API credentials are present. */
 export function configuredCarriers(cfg = config) {
   return Object.entries(cfg.carriers)
     .filter(([, c]) => c.clientId && c.clientSecret)

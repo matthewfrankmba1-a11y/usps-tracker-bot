@@ -99,10 +99,19 @@ export function listEmbed(rows, { scopeLabel }) {
   return embed;
 }
 
+/** How a carrier's transport reads in /track status. */
+const TRANSPORT_LABEL = {
+  direct: { icon: '🟢', text: 'carrier API' },
+  easypost: { icon: '🔵', text: 'via EasyPost' },
+};
+
 /** Health/diagnostics embed for /track status. */
 export function statusEmbed({ stats, carrierStatus, intervalMinutes, nextPollAt, lastPollAt, startedAt }) {
   const carrierLines = Object.entries(carrierStatus)
-    .map(([id, ok]) => `${ok ? '🟢' : '⚪'} ${carrierLabel(id)} — ${ok ? 'configured' : 'no credentials'}`)
+    .map(([id, transport]) => {
+      const { icon, text } = TRANSPORT_LABEL[transport] ?? { icon: '⚪', text: 'no credentials' };
+      return `${icon} ${carrierLabel(id)} — ${text}`;
+    })
     .join('\n');
 
   return new EmbedBuilder()

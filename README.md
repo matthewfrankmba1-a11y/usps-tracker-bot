@@ -49,7 +49,27 @@ people tracking the same number get one embed and two mentions.
 
 No privileged gateway intents are needed — the bot only uses slash commands.
 
-## Carrier credentials
+## Tracking credentials
+
+There are two ways to feed the bot. **EasyPost** is one key for all three
+carriers with no approval queue; the **carriers' own APIs** are free but each
+has its own onboarding.
+
+### Option A — EasyPost (fastest)
+
+Sign up at <https://www.easypost.com>, copy the API key from Account → API
+Keys, and set it:
+
+```bash
+EASYPOST_API_KEY=EZAK...
+```
+
+That covers USPS, UPS and FedEx at once. EasyPost polls the carriers itself, so
+the bot looks up an existing tracker per number and creates one the first time
+it sees it. Check EasyPost's current pricing for tracker volume; personal use
+sits inside the free tier.
+
+### Option B — the carriers' own APIs
 
 Each carrier uses OAuth 2.0 client credentials. The bot caches tokens and
 refreshes them a minute before expiry.
@@ -59,6 +79,24 @@ refreshes them a minute before expiry.
 | USPS | <https://developer.usps.com> | Tracking (3.0) |
 | UPS | <https://developer.ups.com> | Tracking |
 | FedEx | <https://developer.fedex.com> | Track API |
+
+### Which one gets used
+
+`TRACKING_PROVIDER` decides, and defaults to `auto`:
+
+| Value | Behaviour |
+| --- | --- |
+| `auto` | A carrier's own API when it has credentials, otherwise EasyPost |
+| `easypost` | Always EasyPost |
+| `direct` | Only the carriers' own APIs |
+
+So you can run on EasyPost today and, when USPS finally approves your
+developer account, just set `USPS_CLIENT_ID`/`USPS_CLIENT_SECRET` — USPS
+switches to its own API on the next restart while UPS and FedEx stay on
+EasyPost. `/track status` shows which transport each carrier is using.
+
+EasyPost is a transport, not a fourth carrier: shipments stay keyed by the real
+carrier, detection is unchanged, and tracking links still point at USPS/UPS/FedEx.
 
 Carriers you leave unconfigured are simply skipped: `/track add` still accepts
 the number, tells you credentials are missing, and starts reporting as soon as
@@ -134,6 +172,8 @@ Every setting is an environment variable (see [`.env.example`](.env.example)).
 
 | Variable | Default | Notes |
 | --- | --- | --- |
+| `EASYPOST_API_KEY` | unset | One key for USPS, UPS and FedEx |
+| `TRACKING_PROVIDER` | `auto` | `auto`, `easypost` or `direct` |
 | `POLL_INTERVAL_MINUTES` | `20` | How often every tracked package is refreshed |
 | `POLL_JITTER_SECONDS` | `30` | Random spread so cycles do not align exactly |
 | `POLL_CONCURRENCY` | `3` | Simultaneous carrier lookups per cycle |
@@ -164,7 +204,7 @@ errors.
 ## Development
 
 ```bash
-npm test     # 39 unit tests: detection, parsing, storage, poll/diff logic
+npm test     # 49 unit tests: detection, parsing, storage, poll/diff logic
 npm run dev  # node --watch
 npm run register  # re-register slash commands without starting the bot
 ```
@@ -175,7 +215,7 @@ src/
   poller.js           # 20-minute cycle, diffing, retries, retention
   store.js            # atomic JSON persistence
   health.js           # /healthz
-  carriers/           # usps.js, ups.js, fedex.js, detection, normalisation
+  carriers/           # usps.js, ups.js, fedex.js, easypost.js, detection, normalisation
   discord/            # slash commands, embeds, registration
 ```
 
